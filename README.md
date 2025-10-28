@@ -1,97 +1,143 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Multi-Lingual Tweeter Sentiment Analysis — FYP
 
-# Getting Started
+This repository contains a React Native mobile client and an Express.js server that uses Google Gemini (via `@google/generative-ai`) to analyze a local `India.csv` dataset.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+The mobile app includes a simple UI to call server endpoints and view their responses. The server samples rows from `India.csv` and calls Gemini to perform sentiment analysis, trend extraction, insights, and summaries.
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## What was implemented
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- React Native app with navigation and two main screens:
+  - `HomeScreen` — buttons to call server endpoints and show loading/errors
+  - `DetailsScreen` — pretty-prints API responses
+- Express server under `server/` with ESM (`server/package.json` contains `"type": "module"`)
+- API endpoints under `/api`:
+  - `/api/analyze-multiple-tweets-sentiment`
+  - `/api/analyze-trends`
+  - `/api/generate-insights`
+  - `/api/generate-summary`
 
-```sh
-# Using npm
-npm start
+---
 
-# OR using Yarn
-yarn start
+## Prerequisites
+
+- Node.js (v18+ recommended)
+- Android Studio / Xcode or device for testing
+- React Native CLI environment (see: https://reactnative.dev/docs/environment-setup)
+- Gemini API key (set in `server/.env`)
+
+---
+
+## Install dependencies
+
+From the project root:
+
+```powershell
+# Install app dependencies
+npm install
+
+# Install server dependencies (server has its own package.json)
+cd server
+npm install
+cd ..
 ```
 
-## Step 2: Build and run your app
+The server is installed inside `server/` so it can use ESM (`type: "module"`) without breaking Metro.
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## Environment
 
-```sh
-# Using npm
+Create `server/.env` and add your Gemini API key:
+
+```
+PORT=3000
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+---
+
+## Run (development)
+
+- Start Metro and the server together (recommended):
+
+```powershell
+npm run dev
+```
+
+This runs Metro for React Native and the server (using `server/`'s dev script which uses `nodemon`).
+
+- Run server only (dev watch):
+
+```powershell
+npm run server
+```
+
+- Run server only (production):
+
+```powershell
+npm run server:prod
+```
+
+- Start Android app (separate terminal; ensure Metro is running):
+
+```powershell
 npm run android
-
-# OR using Yarn
-yarn android
 ```
 
-### iOS
+---
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## Networking / Emulator notes
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+- Android emulator uses `10.0.2.2` to reach the host machine. The app's `HomeScreen` selects the correct base URL automatically:
+  - Android emulator: `http://10.0.2.2:3000`
+  - iOS Simulator / macOS: `http://localhost:3000`
 
-```sh
-bundle install
+If you use a physical device, replace the base URL in `src/screens/HomeScreen.tsx` with your machine IP (e.g. `http://192.168.x.y:3000`).
+
+---
+
+## Test endpoints from the app
+
+1. Start the server: `npm run server` (or `npm run dev` to run both)
+2. Start the app and open the Home screen
+3. Tap any of the endpoint buttons — the app will call the server and navigate to Details to show the response
+
+If the server isn't reachable you'll see an error message on Home.
+
+---
+
+## Manual curl example
+
+```powershell
+curl http://localhost:3000/api/analyze-multiple-tweets-sentiment
 ```
 
-Then, and every time you update your native dependencies, run:
+Use `10.0.2.2` instead of `localhost` if calling from Android emulator code that expects that mapping.
 
-```sh
-bundle exec pod install
-```
+---
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+## Troubleshooting
 
-```sh
-# Using npm
-npm run ios
+- Metro ESM error on Windows ("Only URLs with a scheme ... Received protocol 'c:'"):
+  - Do not set `"type": "module"` in the root `package.json`. The server is isolated in `server/` and has `type: "module"`.
 
-# OR using Yarn
-yarn ios
-```
+- Missing `India.csv` errors:
+  - Place your CSV at `server/India.csv` or update the path in `server/utils.js`.
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+- Gemini responses malformed / empty:
+  - Inspect server logs — the server prints model output for debugging. The model may still produce unexpected text even when given a schema.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+---
 
-## Step 3: Modify your app
+## Next steps (suggestions)
 
-Now that you have successfully run the app, let's make changes!
+- Add an in-app server health/status indicator and retry button
+- Add parameterized calls (e.g. `?lang=hindi`) from UI
+- Add unit tests for server utilities
+- Provide a small sanitized sample `India.csv` for faster developer testing
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+---
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+If you'd like, I can also add an in-app server health indicator and a retry button next.
