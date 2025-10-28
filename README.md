@@ -4,6 +4,9 @@ This repository contains a React Native mobile client and an Express.js server t
 
 The mobile app includes a simple UI to call server endpoints and view their responses. The server samples rows from `India.csv` and calls Gemini to perform sentiment analysis, trend extraction, insights, and summaries.
 
+<img width="479" height="1017" alt="Screenshot 2025-10-28 151319" src="https://github.com/user-attachments/assets/b7e446eb-59be-4cd7-b52d-8f53f045600f" />
+
+
 ---
 
 ## What was implemented
