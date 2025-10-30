@@ -76,4 +76,5 @@ yarn-error.log
 
 # Environment files
 .env
+server/.env
 .env.*.local

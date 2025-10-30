@@ -1,6 +1,6 @@
 import express, { response } from 'express';
 import dotenv from 'dotenv';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import fs from 'fs';
 import csvParser from 'csv-parser';
 
@@ -12,7 +12,7 @@ app.use(express.json());
 const START_INDEX = 0;
 const MAX_ROWS = 100;
 
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Function to parse CSV file
 export async function parseCsv(filePath, startingIndex = 0, maxRows = 1000) {
@@ -66,10 +66,12 @@ export async function translateText(text, targetLanguage) {
   const prompt = `Translate the following text into ${targetLanguage}. Return ONLY the translated text. Text to translate: ${text}`;
 
   try {
-    const model = ai.getGenerativeModel({ model: "gemini-pro" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text().trim();
+    const result = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ parts: [{ text: prompt }] }],
+      config: { temperature: 0.1 },
+    });
+    return result.text.trim();
   } catch (error) {
     console.error("Translation API error:", error);
     return text;
