@@ -38,11 +38,6 @@ export async function parseCsv(filePath, startingIndex = 0, maxRows = 1000) {
   return { rows, sampleRows };
 }
 
-// Function to estimate tokens
-export function estimateTokens(compactCsv) {
-  return Math.ceil(compactCsv.length / 4) + 500;
-}
-
 // Function to handle errors
 export function handleError(res, error) {
   console.error('Error during CSV analysis:', error);
